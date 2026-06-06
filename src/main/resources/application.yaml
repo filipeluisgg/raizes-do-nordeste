@@ -1,3 +1,36 @@
 spring:
   application:
-    name: api
+    name: raizes-nordeste-api
+
+  datasource:
+    url: jdbc:postgresql://localhost:5432/${POSTGRES_DB:raizes_nordeste}
+    username: ${POSTGRES_USER:raizes_user}
+    password: ${POSTGRES_PASSWORD:raizes_secret}
+    driver-class-name: org.postgresql.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    show-sql: false
+    properties:
+      hibernate:
+        format_sql: true
+
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+
+api:
+  security:
+    jwt:
+      secret: ${JWT_SECRET:default-dev-secret-key-min-32-characters-long}
+      expiration-ms: ${JWT_EXPIRATION_MS:86400000}
+
+springdoc:
+  api-docs:
+    path: /api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+
+server:
+  port: 8080
