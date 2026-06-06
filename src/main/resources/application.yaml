@@ -34,3 +34,8 @@ springdoc:
 
 server:
   port: 8080
+
+pagarme:
+  api:
+    url: ${PAGARME_API_URL:https://api.pagar.me/core/v5/orders}
+    secret-key: ${PAGARME_SECRET_KEY:sk_test_mock_sandbox_key}

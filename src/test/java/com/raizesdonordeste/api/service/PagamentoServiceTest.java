@@ -116,7 +116,7 @@ class PagamentoServiceTest {
 		void deveRegistrarPagamentoRecusadoQuandoGatewayFalha() {
 			when(pedidoRepository.findById(1L)).thenReturn(Optional.of(pedidoMock));
 			when(pagamentoRepository.existsByPedidoId(1L)).thenReturn(false);
-			when(pagamentoGateway.processar(any(BigDecimal.class), any(FormaPagamento.class)))
+			when(pagamentoGateway.processar(any(Pedido.class), any(FormaPagamento.class)))
 				.thenThrow(new RuntimeException("Timeout de conexão"));
 			when(pagamentoRepository.save(any(Pagamento.class)))
 				.thenAnswer(invocation -> invocation.getArgument(0));
@@ -133,7 +133,7 @@ class PagamentoServiceTest {
 		void deveAprovarPagamentoEAvancarStatusQuandoGatewayAprova() {
 			when(pedidoRepository.findById(1L)).thenReturn(Optional.of(pedidoMock));
 			when(pagamentoRepository.existsByPedidoId(1L)).thenReturn(false);
-			when(pagamentoGateway.processar(any(BigDecimal.class), any(FormaPagamento.class)))
+			when(pagamentoGateway.processar(any(Pedido.class), any(FormaPagamento.class)))
 				.thenReturn(new PagamentoGatewayResponse(true, "txn-123", null));
 			when(pagamentoRepository.save(any(Pagamento.class)))
 				.thenAnswer(invocation -> invocation.getArgument(0));
@@ -152,7 +152,7 @@ class PagamentoServiceTest {
 		void deveRegistrarRecusaQuandoGatewayRecusa() {
 			when(pedidoRepository.findById(1L)).thenReturn(Optional.of(pedidoMock));
 			when(pagamentoRepository.existsByPedidoId(1L)).thenReturn(false);
-			when(pagamentoGateway.processar(any(BigDecimal.class), any(FormaPagamento.class)))
+			when(pagamentoGateway.processar(any(Pedido.class), any(FormaPagamento.class)))
 				.thenReturn(new PagamentoGatewayResponse(false, null, "Saldo insuficiente"));
 			when(pagamentoRepository.save(any(Pagamento.class)))
 				.thenAnswer(invocation -> invocation.getArgument(0));

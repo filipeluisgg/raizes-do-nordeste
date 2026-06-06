@@ -58,7 +58,7 @@ public class PagamentoService {
 
 		PagamentoGatewayResponse gatewayResponse;
 		try {
-			gatewayResponse = pagamentoGateway.processar(pedido.getValorTotal(), formaPagamento);
+			gatewayResponse = pagamentoGateway.processar(pedido, formaPagamento);
 		} catch (Exception e) {
 			Pagamento pagamentoFalha = new Pagamento(pedido, formaPagamento, pedido.getValorTotal());
 			pagamentoFalha.setStatus(StatusPagamento.RECUSADO);
