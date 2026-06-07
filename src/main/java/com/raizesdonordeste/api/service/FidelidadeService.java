@@ -21,15 +21,18 @@ public class FidelidadeService {
 	private final FidelidadeConsentimentoRepository consentimentoRepository;
 	private final UsuarioRepository usuarioRepository;
 	private final com.raizesdonordeste.api.infrastructure.repository.PedidoRepository pedidoRepository;
+	private final com.raizesdonordeste.api.infrastructure.repository.CampanhaFidelidadeRepository campanhaRepository;
 
 	public FidelidadeService(PontoFidelidadeRepository pontoRepository,
 			FidelidadeConsentimentoRepository consentimentoRepository,
 			UsuarioRepository usuarioRepository,
-			com.raizesdonordeste.api.infrastructure.repository.PedidoRepository pedidoRepository) {
+			com.raizesdonordeste.api.infrastructure.repository.PedidoRepository pedidoRepository,
+			com.raizesdonordeste.api.infrastructure.repository.CampanhaFidelidadeRepository campanhaRepository) {
 		this.pontoRepository = pontoRepository;
 		this.consentimentoRepository = consentimentoRepository;
 		this.usuarioRepository = usuarioRepository;
 		this.pedidoRepository = pedidoRepository;
+		this.campanhaRepository = campanhaRepository;
 	}
 
 	@Transactional
@@ -49,7 +52,17 @@ public class FidelidadeService {
 			return;
 		}
 
-		PontoFidelidade ponto = new PontoFidelidade(pedido.getCliente(), pedido, pontos);
+		java.util.List<com.raizesdonordeste.api.domain.entity.CampanhaFidelidade> campanhas = 
+			campanhaRepository.findCampanhasValidas(java.time.LocalDateTime.now(), pedido.getUnidade().getId());
+
+		java.math.BigDecimal multiplicadorFinal = java.math.BigDecimal.ONE;
+		for (com.raizesdonordeste.api.domain.entity.CampanhaFidelidade c : campanhas) {
+			multiplicadorFinal = multiplicadorFinal.max(c.getMultiplicador()); // Usa o maior multiplicador
+		}
+
+		int pontosCalculados = new java.math.BigDecimal(pontos).multiply(multiplicadorFinal).intValue();
+
+		PontoFidelidade ponto = new PontoFidelidade(pedido.getCliente(), pedido, pontosCalculados);
 		pontoRepository.save(ponto);
 	}
 

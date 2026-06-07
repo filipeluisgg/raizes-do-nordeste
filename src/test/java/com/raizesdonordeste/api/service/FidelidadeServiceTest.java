@@ -42,6 +42,10 @@ class FidelidadeServiceTest {
 	private FidelidadeConsentimentoRepository consentimentoRepository;
 	@Mock
 	private UsuarioRepository usuarioRepository;
+	@Mock
+	private com.raizesdonordeste.api.infrastructure.repository.PedidoRepository pedidoRepository;
+	@Mock
+	private com.raizesdonordeste.api.infrastructure.repository.CampanhaFidelidadeRepository campanhaRepository;
 
 	@InjectMocks
 	private FidelidadeService fidelidadeService;
