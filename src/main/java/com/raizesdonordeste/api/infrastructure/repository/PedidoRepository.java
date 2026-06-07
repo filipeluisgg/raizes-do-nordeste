@@ -22,4 +22,6 @@ public interface PedidoRepository extends JpaRepository<Pedido, Long> {
 	List<Pedido> findByUnidadeIdAndCanalPedido(Long unidadeId, CanalPedido canalPedido);
 
 	Optional<Pedido> findByIdAndClienteId(Long id, Long clienteId);
+
+	List<Pedido> findByUnidadeIdAndStatusAndCriadoEmBetween(Long unidadeId, StatusPedido status, java.time.LocalDateTime inicio, java.time.LocalDateTime fim);
 }
