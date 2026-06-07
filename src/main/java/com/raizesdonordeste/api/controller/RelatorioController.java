@@ -29,7 +29,7 @@ public class RelatorioController {
 	}
 
 	@GetMapping("/vendas")
-	@PreAuthorize("hasAuthority('SCOPE_read:auditoria')")
+	@PreAuthorize("hasAuthority('read:auditoria')")
 	@Operation(summary = "Gerar relatório de vendas por unidade")
 	public ResponseEntity<RelatorioVendasDTO> gerarRelatorioVendas(
 			@RequestParam Long unidadeId,
