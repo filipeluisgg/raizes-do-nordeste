@@ -71,6 +71,10 @@ public class PedidoService {
 				.filter(Produto::getAtivo)
 				.orElseThrow(() -> new RecursoNaoEncontradoException("Produto", item.produtoId()));
 
+			if (!produto.isDisponivelNoPeriodo(java.time.LocalDate.now())) {
+			    throw new NegocioException("ProdutoForaDeTemporada", "O produto " + produto.getNome() + " não está disponível no período atual devido a sazonalidade.", "Escolha outro produto ativo.", 400);
+			}
+
 			estoqueService.validarEBaixarEstoque(unidadeId, produto.getId(), item.quantidade());
 
 			ItemPedido itemPedido = new ItemPedido(produto, item.quantidade(), produto.getPreco());

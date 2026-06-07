@@ -132,6 +132,19 @@ public class Produto {
 		return criadoEm;
 	}
 
+	public boolean isDisponivelNoPeriodo(LocalDate data) {
+		if (!Boolean.TRUE.equals(sazonal)) {
+			return true;
+		}
+		if (disponivelDe != null && data.isBefore(disponivelDe)) {
+			return false;
+		}
+		if (disponivelAte != null && data.isAfter(disponivelAte)) {
+			return false;
+		}
+		return true;
+	}
+
 	@Override
 	public boolean equals(Object o) {
 		if (this == o) return true;
