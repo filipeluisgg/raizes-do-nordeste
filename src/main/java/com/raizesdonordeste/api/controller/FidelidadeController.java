@@ -8,6 +8,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -15,6 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.raizesdonordeste.api.domain.entity.FidelidadeConsentimento;
 import com.raizesdonordeste.api.domain.entity.PontoFidelidade;
 import com.raizesdonordeste.api.dto.request.AtualizarConsentimentoRequest;
+import com.raizesdonordeste.api.dto.ResgatePontosRequest;
 import com.raizesdonordeste.api.service.FidelidadeService;
 
 import jakarta.servlet.http.HttpServletRequest;
@@ -70,5 +72,15 @@ public class FidelidadeController {
 			"registradoEm", consentimento.getCriadoEm().toString()
 		);
 		return ResponseEntity.ok(response);
+	}
+
+	@PostMapping("/resgate")
+	@PreAuthorize("hasAuthority('manage:consentimento')") // Ou criar authority 'manage:resgate' se necessário, mas vou usar a que o cliente tem no role. Role.CLIENTE tem manage:consentimento.
+	public ResponseEntity<Map<String, String>> resgatarPontos(
+			@Valid @RequestBody ResgatePontosRequest request,
+			Authentication auth) {
+		Long clienteId = (Long) auth.getPrincipal();
+		fidelidadeService.resgatarPontos(clienteId, request.getPedidoId(), request.getPontos());
+		return ResponseEntity.ok(Map.of("mensagem", "Resgate efetuado com sucesso. O desconto foi aplicado no pedido."));
 	}
 }

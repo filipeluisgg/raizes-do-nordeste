@@ -65,6 +65,9 @@ class PedidoE2ETest {
 	private PedidoRepository pedidoRepository;
 
 	@Autowired
+	private org.springframework.jdbc.core.JdbcTemplate jdbcTemplate;
+
+	@Autowired
 	private JwtTokenProvider jwtTokenProvider;
 
 	@Autowired
@@ -78,11 +81,7 @@ class PedidoE2ETest {
 
 	@BeforeEach
 	void setUp() {
-		pedidoRepository.deleteAll();
-		estoqueUnidadeRepository.deleteAll();
-		usuarioRepository.deleteAll();
-		produtoRepository.deleteAll();
-		unidadeRepository.deleteAll();
+		jdbcTemplate.execute("TRUNCATE TABLE auditoria_log, ponto_fidelidade, fidelidade_consentimento, pagamento, item_pedido, pedido, estoque_unidade, usuario, produto, unidade RESTART IDENTITY CASCADE");
 
 		unidade = new Unidade("Loja E2E", "Rua Teste", "Recife", "PE", true);
 		unidade = unidadeRepository.save(unidade);

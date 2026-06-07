@@ -42,9 +42,12 @@ class AuthE2ETest {
 	@Autowired
 	private PasswordEncoder passwordEncoder;
 
+	@Autowired
+	private org.springframework.jdbc.core.JdbcTemplate jdbcTemplate;
+
 	@BeforeEach
 	void setUp() {
-		usuarioRepository.deleteAll();
+		jdbcTemplate.execute("TRUNCATE TABLE auditoria_log, ponto_fidelidade, fidelidade_consentimento, pagamento, item_pedido, pedido, estoque_unidade, usuario, produto, unidade RESTART IDENTITY CASCADE");
 
 		// Criando usuário de teste para o login
 		Usuario cliente = new Usuario("Login E2E", "login@e2e.com", passwordEncoder.encode("senhaForte123"), Role.CLIENTE);

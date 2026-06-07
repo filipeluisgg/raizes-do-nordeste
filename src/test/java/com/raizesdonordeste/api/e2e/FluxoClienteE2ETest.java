@@ -66,6 +66,7 @@ class FluxoClienteE2ETest {
 	@Autowired private FidelidadeConsentimentoRepository fidelidadeConsentimentoRepository;
 	@Autowired private AuditoriaLogRepository auditoriaLogRepository;
 	@Autowired private PasswordEncoder passwordEncoder;
+	@Autowired private org.springframework.jdbc.core.JdbcTemplate jdbcTemplate;
 
 	@MockitoBean
 	private PagamentoGateway pagamentoGateway;
@@ -75,17 +76,9 @@ class FluxoClienteE2ETest {
 
 	@BeforeEach
 	void setUp() {
-		auditoriaLogRepository.deleteAll();
-		pontoFidelidadeRepository.deleteAll();
-		fidelidadeConsentimentoRepository.deleteAll();
-		pagamentoRepository.deleteAll();
-		pedidoRepository.deleteAll();
-		estoqueUnidadeRepository.deleteAll();
-		usuarioRepository.deleteAll();
-		produtoRepository.deleteAll();
-		unidadeRepository.deleteAll();
+		jdbcTemplate.execute("TRUNCATE TABLE auditoria_log, ponto_fidelidade, fidelidade_consentimento, pagamento, item_pedido, pedido, estoque_unidade, usuario, produto, unidade RESTART IDENTITY CASCADE");
 
-		unidade = new Unidade("Loja Shopping", "Av Principal", "Fortaleza", "CE", true);
+		unidade = new Unidade("Loja E2E Cliente", "Rua Y", "Recife", "PE", true);
 		unidade = unidadeRepository.save(unidade);
 
 		produto = new Produto("Baião de Dois", "Prato feito", new BigDecimal("35.00"), "Prato Principal");

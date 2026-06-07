@@ -12,6 +12,8 @@ public interface PontoFidelidadeRepository extends JpaRepository<PontoFidelidade
 
 	List<PontoFidelidade> findByClienteIdOrderByCriadoEmDesc(Long clienteId);
 
+	boolean existsByPedidoIdAndPontosLessThan(Long pedidoId, Integer pontos);
+
 	@Query("SELECT COALESCE(SUM(pf.pontos), 0) FROM PontoFidelidade pf WHERE pf.cliente.id = :clienteId")
 	int calcularSaldoPontos(@Param("clienteId") Long clienteId);
 
