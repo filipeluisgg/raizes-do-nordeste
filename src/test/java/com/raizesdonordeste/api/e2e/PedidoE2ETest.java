@@ -259,9 +259,81 @@ class PedidoE2ETest {
 				request,
 				new ParameterizedTypeReference<Map<String, Object>>() {}
 			);
-			assertTrue(false, "Deveria lançar HttpClientErrorException.Forbidden");
+			assertTrue(false, "Deveria lançar exceção 403");
 		} catch (HttpClientErrorException.Forbidden ex) {
 			assertEquals(HttpStatus.FORBIDDEN, ex.getStatusCode());
+		}
+	}
+
+	@Test
+	void deveListarPedidosComFiltroDeCanal_Retorna200() {
+		// Criar um pedido adicional no TOTEM
+		Pedido pedidoTotem = new Pedido(usuarioRepository.findAll().get(0), unidade, CanalPedido.TOTEM);
+		pedidoRepository.save(pedidoTotem);
+
+		HttpHeaders headers = new HttpHeaders();
+		headers.setContentType(MediaType.APPLICATION_JSON);
+		headers.set("Authorization", tokenCliente);
+
+		HttpEntity<Void> request = new HttpEntity<>(headers);
+		String url = "http://localhost:" + port + "/pedidos?canalPedido=APP";
+
+		ResponseEntity<List<Map<String, Object>>> response = restTemplate.exchange(
+			url,
+			HttpMethod.GET,
+			request,
+			new ParameterizedTypeReference<List<Map<String, Object>>>() {}
+		);
+
+		assertEquals(HttpStatus.OK, response.getStatusCode());
+		assertNotNull(response.getBody());
+		assertTrue(response.getBody().size() > 0);
+		// Todos os pedidos retornados devem ter canalPedido = APP
+		for (Map<String, Object> p : response.getBody()) {
+			assertEquals("APP", p.get("canalPedido"));
+		}
+	}
+
+	@Test
+	void deveFalharListarPedidos_CaminhoTriste_SemToken_Retorna401() {
+		HttpHeaders headers = new HttpHeaders();
+		headers.setContentType(MediaType.APPLICATION_JSON);
+
+		HttpEntity<Void> request = new HttpEntity<>(headers);
+		String url = "http://localhost:" + port + "/pedidos?canalPedido=APP";
+
+		try {
+			restTemplate.exchange(
+				url,
+				HttpMethod.GET,
+				request,
+				new ParameterizedTypeReference<List<Map<String, Object>>>() {}
+			);
+			assertTrue(false, "Deveria lancar excecao 403/401");
+		} catch (HttpClientErrorException ex) {
+			assertTrue(ex.getStatusCode() == HttpStatus.UNAUTHORIZED || ex.getStatusCode() == HttpStatus.FORBIDDEN);
+		}
+	}
+
+	@Test
+	void deveFalharListarPedidos_CaminhoTriste_CanalInvalido_Retorna400() {
+		HttpHeaders headers = new HttpHeaders();
+		headers.setContentType(MediaType.APPLICATION_JSON);
+		headers.set("Authorization", tokenCliente);
+
+		HttpEntity<Void> request = new HttpEntity<>(headers);
+		String url = "http://localhost:" + port + "/pedidos?canalPedido=CANAL_FALSO_INEXISTENTE";
+
+		try {
+			restTemplate.exchange(
+				url,
+				HttpMethod.GET,
+				request,
+				new ParameterizedTypeReference<Map<String, Object>>() {} 
+			);
+			assertTrue(false, "Deveria lancar excecao 400");
+		} catch (HttpClientErrorException.BadRequest ex) {
+			assertEquals(HttpStatus.BAD_REQUEST, ex.getStatusCode());
 		}
 	}
 }
