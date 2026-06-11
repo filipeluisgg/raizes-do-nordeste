@@ -21,6 +21,7 @@ import com.raizesdonordeste.api.domain.enums.CanalPedido;
 import com.raizesdonordeste.api.domain.enums.StatusPedido;
 import com.raizesdonordeste.api.dto.request.AtualizarStatusRequest;
 import com.raizesdonordeste.api.dto.request.CriarPedidoRequest;
+import com.raizesdonordeste.api.domain.exception.NegocioException;
 import com.raizesdonordeste.api.service.AuditoriaService;
 import com.raizesdonordeste.api.service.PedidoService;
 
@@ -88,6 +89,19 @@ public class PedidoController {
 			@Valid @RequestBody AtualizarStatusRequest request,
 			Authentication auth,
 			HttpServletRequest httpRequest) {
+
+		if (request.novoStatus() == StatusPedido.CANCELADO) {
+			boolean podeCancelar = auth.getAuthorities().stream()
+				.anyMatch(a -> a.getAuthority().equals("cancel:pedido"));
+			if (!podeCancelar) {
+				throw new NegocioException(
+					"ForbiddenError",
+					"Usuário não tem permissão para cancelar pedidos.",
+					"Apenas usuários com o perfil de GERENTE podem executar cancelamentos.",
+					403
+				);
+			}
+		}
 
 		Pedido pedido = pedidoService.buscarPorId(id);
 		StatusPedido anterior = pedido.getStatus();

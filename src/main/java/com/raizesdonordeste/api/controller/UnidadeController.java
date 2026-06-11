@@ -9,14 +9,20 @@ import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+import java.net.URI;
 
 import com.raizesdonordeste.api.domain.entity.EstoqueUnidade;
+import com.raizesdonordeste.api.domain.entity.Unidade;
 import com.raizesdonordeste.api.dto.request.AjustarEstoqueRequest;
+import com.raizesdonordeste.api.dto.request.CriarUnidadeRequest;
 import com.raizesdonordeste.api.service.AuditoriaService;
 import com.raizesdonordeste.api.service.EstoqueService;
+import com.raizesdonordeste.api.service.UnidadeService;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
@@ -27,10 +33,30 @@ public class UnidadeController {
 
 	private final EstoqueService estoqueService;
 	private final AuditoriaService auditoriaService;
+	private final UnidadeService unidadeService;
 
-	public UnidadeController(EstoqueService estoqueService, AuditoriaService auditoriaService) {
+	public UnidadeController(EstoqueService estoqueService, AuditoriaService auditoriaService, UnidadeService unidadeService) {
 		this.estoqueService = estoqueService;
 		this.auditoriaService = auditoriaService;
+		this.unidadeService = unidadeService;
+	}
+
+	@PostMapping
+	@PreAuthorize("hasAuthority('manage:unidade')")
+	public ResponseEntity<Map<String, Object>> criarUnidade(@Valid @RequestBody CriarUnidadeRequest request) {
+		Unidade unidade = unidadeService.criarUnidade(request);
+
+		URI uri = ServletUriComponentsBuilder.fromCurrentRequest()
+			.path("/{id}")
+			.buildAndExpand(unidade.getId())
+			.toUri();
+
+		Map<String, Object> response = Map.of(
+			"id", unidade.getId(),
+			"nome", unidade.getNome(),
+			"cidade", unidade.getCidade()
+		);
+		return ResponseEntity.created(uri).body(response);
 	}
 
 	@GetMapping("/{unidadeId}/cardapio")

@@ -336,4 +336,31 @@ class PedidoE2ETest {
 			assertEquals(HttpStatus.BAD_REQUEST, ex.getStatusCode());
 		}
 	}
+
+	@Test
+	void deveFalharAtendenteCancelandoPedido_CaminhoTriste_Retorna403() {
+		HttpHeaders headers = new HttpHeaders();
+		headers.setContentType(MediaType.APPLICATION_JSON);
+		headers.set("Authorization", tokenAtendente);
+
+		Map<String, Object> body = Map.of(
+			"novoStatus", "CANCELADO",
+			"motivo", "Cliente desistiu"
+		);
+
+		HttpEntity<Map<String, Object>> request = new HttpEntity<>(body, headers);
+		String url = "http://localhost:" + port + "/pedidos/" + pedidoExistente.getId() + "/status";
+
+		try {
+			restTemplate.exchange(
+				url,
+				HttpMethod.PATCH,
+				request,
+				new ParameterizedTypeReference<Map<String, Object>>() {}
+			);
+			assertTrue(false, "Deveria lancar excecao 403 Forbidden");
+		} catch (HttpClientErrorException.Forbidden ex) {
+			assertEquals(HttpStatus.FORBIDDEN, ex.getStatusCode());
+		}
+	}
 }
