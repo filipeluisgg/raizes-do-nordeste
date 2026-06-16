@@ -132,4 +132,32 @@ class AuthE2ETest {
 			assertEquals(HttpStatus.UNAUTHORIZED, ex.getStatusCode());
 		}
 	}
+
+	@Test
+	void deveRegistrarUsuarioComSucesso_CaminhoFeliz_Retorna201() {
+		Map<String, Object> requestBody = Map.of(
+			"nome", "Novo Cliente",
+			"email", "novo.cliente@e2e.com",
+			"senha", "senhaForte123",
+			"consentimentoFidelidade", true
+		);
+
+		HttpHeaders headers = new HttpHeaders();
+		headers.setContentType(MediaType.APPLICATION_JSON);
+
+		HttpEntity<Map<String, Object>> request = new HttpEntity<>(requestBody, headers);
+		String url = "http://localhost:" + port + "/auth/registro";
+
+		ResponseEntity<Map<String, Object>> response = restTemplate.exchange(
+			url,
+			HttpMethod.POST,
+			request,
+			new ParameterizedTypeReference<Map<String, Object>>() {}
+		);
+
+		assertEquals(HttpStatus.CREATED, response.getStatusCode());
+		assertNotNull(response.getBody());
+		assertEquals("novo.cliente@e2e.com", response.getBody().get("email"));
+		assertEquals("CLIENTE", response.getBody().get("role"));
+	}
 }

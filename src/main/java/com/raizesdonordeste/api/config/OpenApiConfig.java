@@ -22,7 +22,7 @@ public class OpenApiConfig {
 				.description("API REST para gestão de pedidos multi-canal, estoque por unidade, programa de fidelidade e integração de pagamento da rede Raízes do Nordeste.")
 				.contact(new Contact()
 					.name("Luis Felipe Guerreiro Ota")
-					.email("luisfelipe@email.com")))
+					.email("filipeluisgg+dev@gmail.com")))
 			.addSecurityItem(new SecurityRequirement().addList("Bearer JWT"))
 			.components(new Components()
 				.addSecuritySchemes("Bearer JWT", new SecurityScheme()

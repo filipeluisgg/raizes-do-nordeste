@@ -75,7 +75,7 @@ public class FidelidadeController {
 	}
 
 	@PostMapping("/resgate")
-	@PreAuthorize("hasAuthority('manage:consentimento')") // Ou criar authority 'manage:resgate' se necessário, mas vou usar a que o cliente tem no role. Role.CLIENTE tem manage:consentimento.
+	@PreAuthorize("hasAuthority('manage:consentimento')")
 	public ResponseEntity<Map<String, String>> resgatarPontos(
 			@Valid @RequestBody ResgatePontosRequest request,
 			Authentication auth) {

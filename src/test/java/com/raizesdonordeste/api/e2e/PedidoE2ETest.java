@@ -363,4 +363,77 @@ class PedidoE2ETest {
 			assertEquals(HttpStatus.FORBIDDEN, ex.getStatusCode());
 		}
 	}
+
+	@Test
+	void deveFalharCriarPedido_CaminhoTriste_CanalInvalido_Retorna400() {
+		String requestBodyJson = """
+			{
+				"unidadeId": %d,
+				"canalPedido": "TELEFONE",
+				"itens": [
+					{
+						"produtoId": %d,
+						"quantidade": 1
+					}
+				]
+			}
+		""".formatted(unidade.getId(), produto.getId());
+
+		HttpHeaders headers = new HttpHeaders();
+		headers.setContentType(MediaType.APPLICATION_JSON);
+		headers.set("Authorization", tokenCliente);
+
+		HttpEntity<String> request = new HttpEntity<>(requestBodyJson, headers);
+		String url = "http://localhost:" + port + "/pedidos";
+
+		try {
+			restTemplate.exchange(
+				url,
+				HttpMethod.POST,
+				request,
+				new ParameterizedTypeReference<Map<String, Object>>() {} 
+			);
+			assertTrue(false, "Deveria lancar excecao 400 Bad Request");
+		} catch (HttpClientErrorException.BadRequest ex) {
+			assertEquals(HttpStatus.BAD_REQUEST, ex.getStatusCode());
+		}
+	}
+
+	@Test
+	void deveFalharMudarStatus_CaminhoTriste_EntregueParaCancelado_Retorna409() {
+		Pedido pedidoEntregue = new Pedido(pedidoExistente.getCliente(), unidade, CanalPedido.APP);
+		pedidoEntregue.avancarStatus(com.raizesdonordeste.api.domain.enums.StatusPedido.RECEBIDO);
+		pedidoEntregue.avancarStatus(com.raizesdonordeste.api.domain.enums.StatusPedido.EM_PREPARACAO);
+		pedidoEntregue.avancarStatus(com.raizesdonordeste.api.domain.enums.StatusPedido.PRONTO);
+		pedidoEntregue.avancarStatus(com.raizesdonordeste.api.domain.enums.StatusPedido.ENTREGUE);
+		pedidoRepository.save(pedidoEntregue);
+
+		HttpHeaders headers = new HttpHeaders();
+		headers.setContentType(MediaType.APPLICATION_JSON);
+		
+		Usuario gerente = new Usuario("Gerente E2E", "gerente@e2e.com", passwordEncoder.encode("senha123"), Role.GERENTE);
+		gerente = usuarioRepository.save(gerente);
+		String tokenGerente = "Bearer " + jwtTokenProvider.gerarToken(gerente);
+		headers.set("Authorization", tokenGerente);
+
+		Map<String, Object> body = Map.of(
+			"novoStatus", "CANCELADO",
+			"motivo", "Tentativa de cancelar após entrega"
+		);
+
+		HttpEntity<Map<String, Object>> request = new HttpEntity<>(body, headers);
+		String url = "http://localhost:" + port + "/pedidos/" + pedidoEntregue.getId() + "/status";
+
+		try {
+			restTemplate.exchange(
+				url,
+				HttpMethod.PATCH,
+				request,
+				new ParameterizedTypeReference<Map<String, Object>>() {}
+			);
+			assertTrue(false, "Deveria lancar excecao 409 Conflict");
+		} catch (HttpClientErrorException.Conflict ex) {
+			assertEquals(HttpStatus.CONFLICT, ex.getStatusCode());
+		}
+	}
 }

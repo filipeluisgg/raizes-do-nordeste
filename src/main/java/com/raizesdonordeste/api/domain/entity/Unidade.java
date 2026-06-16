@@ -20,16 +20,17 @@ public class Unidade {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 
-	@Column(nullable = false, length = 100)
+	@Column(nullable = false, length = 150)
 	private String nome;
 
-	@Column(nullable = false, length = 200)
+	@Column(nullable = false, length = 300)
 	private String endereco;
 
 	@Column(nullable = false, length = 100)
 	private String cidade;
 
-	@Column(nullable = false, length = 2)
+	@org.hibernate.annotations.JdbcTypeCode(java.sql.Types.CHAR)
+	@Column(nullable = false, length = 2, columnDefinition = "bpchar")
 	private String estado;
 
 	@Column(name = "cozinha_completa", nullable = false)
